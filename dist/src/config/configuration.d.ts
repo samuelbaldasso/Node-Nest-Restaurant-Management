@@ -1,16 +1,16 @@
 declare const _default: () => {
     port: number;
     database: {
-        url: string | undefined;
+        url: string;
     };
     jwt: {
-        secret: string | undefined;
+        secret: string;
         expiresIn: string;
     };
     google: {
-        clientId: string | undefined;
-        clientSecret: string | undefined;
-        callbackUrl: string | undefined;
+        clientId: string;
+        clientSecret: string;
+        callbackUrl: string;
     };
 };
 export default _default;

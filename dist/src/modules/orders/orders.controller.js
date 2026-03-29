@@ -27,8 +27,12 @@ let OrdersController = class OrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
     }
-    findAll(userId, role) {
-        return this.ordersService.findAll(userId, role);
+    findAll(userId, role, page, limit) {
+        const pagination = {
+            page: page ? parseInt(page, 10) : undefined,
+            limit: limit ? parseInt(limit, 10) : undefined,
+        };
+        return this.ordersService.findAll(userId, role, pagination);
     }
     create(userId, createOrderDto) {
         return this.ordersService.create(userId, createOrderDto);
@@ -44,10 +48,14 @@ exports.OrdersController = OrdersController;
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get all orders for current user' }),
+    (0, swagger_1.ApiQuery)({ name: 'page', required: false, type: Number }),
+    (0, swagger_1.ApiQuery)({ name: 'limit', required: false, type: Number }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)('role')),
+    __param(2, (0, common_1.Query)('page')),
+    __param(3, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "findAll", null);
 __decorate([

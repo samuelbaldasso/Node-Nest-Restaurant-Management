@@ -6,14 +6,14 @@ export declare class RestaurantsService {
     constructor(prisma: PrismaService);
     findAll(): Promise<({
         user: {
+            name: string;
             id: string;
             email: string;
-            name: string;
         };
         categories: ({
             products: {
-                id: string;
                 name: string;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 description: string | null;
@@ -22,32 +22,32 @@ export declare class RestaurantsService {
                 categoryId: string;
             }[];
         } & {
-            id: string;
             name: string;
+            id: string;
+            restaurantId: string;
             createdAt: Date;
             updatedAt: Date;
-            restaurantId: string;
         })[];
     } & {
-        id: string;
         name: string;
+        id: string;
+        userId: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
         address: string;
         imageUrl: string | null;
-        userId: string;
     })[]>;
     findOne(id: string): Promise<{
         user: {
+            name: string;
             id: string;
             email: string;
-            name: string;
         };
         categories: ({
             products: {
-                id: string;
                 name: string;
+                id: string;
                 createdAt: Date;
                 updatedAt: Date;
                 description: string | null;
@@ -56,26 +56,26 @@ export declare class RestaurantsService {
                 categoryId: string;
             }[];
         } & {
-            id: string;
             name: string;
+            id: string;
+            restaurantId: string;
             createdAt: Date;
             updatedAt: Date;
-            restaurantId: string;
         })[];
     } & {
-        id: string;
         name: string;
+        id: string;
+        userId: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
         address: string;
         imageUrl: string | null;
-        userId: string;
     }>;
     getMenu(id: string): Promise<({
         products: {
-            id: string;
             name: string;
+            id: string;
             createdAt: Date;
             updatedAt: Date;
             description: string | null;
@@ -84,52 +84,52 @@ export declare class RestaurantsService {
             categoryId: string;
         }[];
     } & {
-        id: string;
         name: string;
+        id: string;
+        restaurantId: string;
         createdAt: Date;
         updatedAt: Date;
-        restaurantId: string;
     })[]>;
     create(userId: string, createRestaurantDto: CreateRestaurantDto): Promise<{
         user: {
+            name: string;
             id: string;
             email: string;
-            name: string;
         };
     } & {
-        id: string;
         name: string;
+        id: string;
+        userId: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
         address: string;
         imageUrl: string | null;
-        userId: string;
     }>;
     update(id: string, userId: string, updateRestaurantDto: UpdateRestaurantDto): Promise<{
         user: {
+            name: string;
             id: string;
             email: string;
-            name: string;
         };
     } & {
-        id: string;
         name: string;
+        id: string;
+        userId: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
         address: string;
         imageUrl: string | null;
-        userId: string;
     }>;
     remove(id: string, userId: string): Promise<{
-        id: string;
         name: string;
+        id: string;
+        userId: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
         address: string;
         imageUrl: string | null;
-        userId: string;
     }>;
 }

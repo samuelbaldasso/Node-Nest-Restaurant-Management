@@ -4,41 +4,41 @@ export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(): Promise<{
-        id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.Role;
-        avatar: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.Role;
+        avatar: string;
     }[]>;
     findOne(id: string): Promise<{
-        id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.Role;
-        avatar: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.Role;
+        avatar: string;
     }>;
     update(id: string, updateUserDto: UpdateUserDto): Promise<{
-        id: string;
-        email: string;
         name: string;
-        role: import("@prisma/client").$Enums.Role;
-        avatar: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
+        email: string;
+        role: import("@prisma/client").$Enums.Role;
+        avatar: string;
     }>;
     remove(id: string): Promise<{
+        name: string;
         id: string;
+        createdAt: Date;
+        updatedAt: Date;
         email: string;
         password: string | null;
-        name: string;
         role: import("@prisma/client").$Enums.Role;
         googleId: string | null;
         avatar: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
 }

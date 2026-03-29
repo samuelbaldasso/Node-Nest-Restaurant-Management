@@ -16,9 +16,20 @@ let OrdersService = class OrdersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async findAll(userId, role) {
-        if (role === 'ADMIN') {
-            return this.prisma.order.findMany({
+    async findAll(userId, role, pagination = {}) {
+        const { page = 1, limit = 20 } = pagination;
+        const skip = (page - 1) * limit;
+        const whereClause = role === 'ADMIN'
+            ? {}
+            : {
+                OR: [
+                    { userId },
+                    { restaurant: { userId } },
+                ],
+            };
+        const [orders, total] = await Promise.all([
+            this.prisma.order.findMany({
+                where: whereClause,
                 include: {
                     user: {
                         select: {
@@ -37,41 +48,20 @@ let OrdersService = class OrdersService {
                 orderBy: {
                     createdAt: 'desc',
                 },
-            });
-        }
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            include: {
-                restaurants: true,
+                skip,
+                take: limit,
+            }),
+            this.prisma.order.count({ where: whereClause }),
+        ]);
+        return {
+            data: orders,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
             },
-        });
-        const restaurantIds = user?.restaurants.map(r => r.id) || [];
-        return this.prisma.order.findMany({
-            where: {
-                OR: [
-                    { userId },
-                    { restaurantId: { in: restaurantIds } },
-                ],
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                restaurant: true,
-                items: {
-                    include: {
-                        product: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        };
     }
     async findOne(id, userId, role) {
         const order = await this.prisma.order.findUnique({
@@ -118,49 +108,57 @@ let OrdersService = class OrdersService {
         if (!restaurant) {
             throw new common_1.NotFoundException('Restaurant not found');
         }
-        let total = 0;
-        const orderItemsData = [];
-        for (const item of items) {
-            const product = await this.prisma.product.findUnique({
-                where: { id: item.productId },
-            });
-            if (!product) {
-                throw new common_1.NotFoundException(`Product ${item.productId} not found`);
+        const productIds = items.map(item => item.productId);
+        const products = await this.prisma.product.findMany({
+            where: { id: { in: productIds } },
+            include: { category: true },
+        });
+        if (products.length !== productIds.length) {
+            const foundIds = products.map(p => p.id);
+            const missingId = productIds.find(id => !foundIds.includes(id));
+            throw new common_1.NotFoundException(`Product ${missingId} not found`);
+        }
+        for (const product of products) {
+            if (product.category.restaurantId !== restaurantId) {
+                throw new common_1.BadRequestException(`Product ${product.id} does not belong to this restaurant`);
             }
-            if (product.categoryId !== restaurantId) {
-                throw new common_1.BadRequestException(`Product ${item.productId} does not belong to this restaurant`);
-            }
-            total += product.price * item.quantity;
-            orderItemsData.push({
+        }
+        const productMap = new Map(products.map(p => [p.id, p]));
+        const orderItemsData = items.map(item => {
+            const product = productMap.get(item.productId);
+            return {
                 productId: item.productId,
                 quantity: item.quantity,
                 price: product.price,
+            };
+        });
+        const total = orderItemsData.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        return this.prisma.$transaction(async (tx) => {
+            return tx.order.create({
+                data: {
+                    userId,
+                    restaurantId,
+                    total,
+                    items: {
+                        create: orderItemsData,
+                    },
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                    restaurant: true,
+                    items: {
+                        include: {
+                            product: true,
+                        },
+                    },
+                },
             });
-        }
-        return this.prisma.order.create({
-            data: {
-                userId,
-                restaurantId,
-                total,
-                items: {
-                    create: orderItemsData,
-                },
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                restaurant: true,
-                items: {
-                    include: {
-                        product: true,
-                    },
-                },
-            },
         });
     }
     async updateStatus(id, userId, updateOrderStatusDto) {

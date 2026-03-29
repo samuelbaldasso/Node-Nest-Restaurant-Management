@@ -5,8 +5,8 @@ export declare class ProductsService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(categoryId: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
@@ -18,36 +18,36 @@ export declare class ProductsService {
         category: {
             restaurant: {
                 user: {
+                    name: string;
                     id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
                     email: string;
                     password: string | null;
-                    name: string;
                     role: import("@prisma/client").$Enums.Role;
                     googleId: string | null;
                     avatar: string | null;
-                    createdAt: Date;
-                    updatedAt: Date;
                 };
             } & {
-                id: string;
                 name: string;
+                id: string;
+                userId: string;
                 createdAt: Date;
                 updatedAt: Date;
                 description: string | null;
                 address: string;
                 imageUrl: string | null;
-                userId: string;
             };
         } & {
-            id: string;
             name: string;
+            id: string;
+            restaurantId: string;
             createdAt: Date;
             updatedAt: Date;
-            restaurantId: string;
         };
     } & {
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
@@ -56,8 +56,8 @@ export declare class ProductsService {
         categoryId: string;
     }>;
     create(categoryId: string, userId: string, createProductDto: CreateProductDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
@@ -66,8 +66,8 @@ export declare class ProductsService {
         categoryId: string;
     }>;
     update(id: string, userId: string, updateProductDto: UpdateProductDto): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
@@ -76,8 +76,8 @@ export declare class ProductsService {
         categoryId: string;
     }>;
     remove(id: string, userId: string): Promise<{
-        id: string;
         name: string;
+        id: string;
         createdAt: Date;
         updatedAt: Date;
         description: string | null;
