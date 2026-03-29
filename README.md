@@ -15,6 +15,9 @@ A NestJS backend for a food delivery platform similar to iFood/Deliveroo.
 | Validation | class-validator + class-transformer | - |
 | API Docs | Swagger/OpenAPI | - |
 | Password Hashing | bcrypt | 6.x |
+| Rate Limiting | @nestjs/throttler | - |
+| Security Headers | helmet | - |
+| Testing | Jest | 30.x |
 
 ## Architecture
 
@@ -55,6 +58,25 @@ src/
 3. **DTO Pattern**: Data Transfer Objects for input validation
 4. **Guard Pattern**: Authentication and authorization guards
 5. **Decorator Pattern**: Custom decorators for extracting current user and roles
+
+### Engineering Best Practices Implemented
+
+1. **Database Performance**
+   - N+1 query prevention: Products fetched in single query using `findMany({ in: [...] })`
+   - Pagination: All list endpoints support `page`/`limit` parameters
+   - ACID Transactions: Order creation wrapped in `$transaction`
+
+2. **Data Integrity**
+   - Monetary values stored as integers (cents) to avoid floating-point precision issues
+   - Proper validation of product ownership via `category.restaurantId`
+
+3. **Security**
+   - Rate limiting with @nestjs/throttler (short & medium strategies)
+   - Security headers via helmet middleware
+
+4. **Code Quality**
+   - Unit tests for critical business logic (OrdersService)
+   - Type-safe queries with Prisma
 
 ## Database Schema
 
@@ -127,7 +149,18 @@ src/
 
 **Trade-off**: Slightly slower than raw SQL queries
 
-### 3. JWT Authentication
+### 3. Monetary Values (Integer/Cents)
+
+**Decision**: Store prices as integers (cents)
+
+**Rationale**:
+- Avoids floating-point precision issues (e.g., 0.1 + 0.2 !== 0.3)
+- Industry standard for financial systems
+- Works seamlessly with SQLite
+
+**Trade-off**: Display requires division by 100
+
+### 4. JWT Authentication
 
 **Decision**: JWT with local storage
 
@@ -139,7 +172,7 @@ src/
 
 **Trade-off**: Token invalidation is challenging (requires token blacklist or short expiry)
 
-### 4. Google OAuth
+### 5. Google OAuth
 
 **Decision**: Passport.js with Google OAuth 2.0
 
@@ -150,7 +183,7 @@ src/
 
 **Trade-off**: Requires Google Cloud Console setup
 
-### 5. Layer-based vs Feature-based Architecture
+### 6. Layer-based vs Feature-based Architecture
 
 **Decision**: Layer-based
 
@@ -213,12 +246,25 @@ src/
 ### Orders
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | /orders | List orders | Yes |
+| GET | /orders?page=1&limit=20 | List orders (paginated) | Yes |
 | POST | /orders | Create order | Yes |
 | GET | /orders/:id | Get order | Yes |
 | PATCH | /orders/:id/status | Update order status | Yes* |
 
 *Requires RESTAURANT_OWNER or ADMIN role
+
+**Pagination Response:**
+```json
+{
+  "data": [...],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 20,
+    "totalPages": 5
+  }
+}
+```
 
 ### Health
 | Method | Endpoint | Description | Auth |
@@ -313,6 +359,16 @@ npm test
 npm test -- --coverage
 ```
 
+### Test Coverage
+
+- **OrdersService**: 15 unit tests covering:
+  - Pagination logic
+  - Order creation with validation
+  - Product/restaurant validation
+  - Transaction handling
+  - Authorization checks
+  - Status updates
+
 ## Scripts
 
 | Script | Description |
@@ -329,14 +385,16 @@ npm test -- --coverage
 1. **Database**: Switch to PostgreSQL for production
 2. **JWT Secret**: Use a strong, random secret
 3. **HTTPS**: Enable SSL/TLS
-4. **Rate Limiting**: Add rate limiting for auth endpoints
-5. **Logging**: Implement structured logging (e.g., Winston, Pino)
+4. **Rate Limiting**: Already implemented with @nestjs/throttler
+5. **Logging**: Implement structured logging (e.g., nestjs-pino, winston)
 6. **CORS**: Restrict CORS origins
 7. **Environment Variables**: Use proper secret management
+8. **Security Headers**: Already implemented with helmet
+9. **Decimal Precision**: Already implemented (Int for cents)
 
 ## Future Improvements
 
-- [ ] Pagination for list endpoints
+- [x] Pagination for list endpoints
 - [ ] File upload for images (restaurant/product images)
 - [ ] Email notifications
 - [ ] Real-time order status updates (WebSockets)
@@ -344,6 +402,8 @@ npm test -- --coverage
 - [ ] Review/Rating system
 - [ ] Search functionality with filters
 - [ ] Analytics dashboard for restaurants
+- [ ] Structured logging (nestjs-pino/winston)
+- [ ] E2E tests
 
 ## License
 
