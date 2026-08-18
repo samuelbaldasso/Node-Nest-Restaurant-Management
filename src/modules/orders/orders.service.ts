@@ -83,14 +83,6 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        restaurants: true,
-      },
-    });
-
-    const restaurantIds = user?.restaurants.map(r => r.id) || [];
     const isOwner = order.restaurant.userId === userId;
     const isCustomer = order.userId === userId;
     const isAdmin = role === 'ADMIN';

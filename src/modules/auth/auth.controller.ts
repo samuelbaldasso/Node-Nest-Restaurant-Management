@@ -1,5 +1,6 @@
 import { Controller, Post, Get, UseGuards, Req, Redirect, Body } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -9,7 +10,10 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -34,8 +38,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Google OAuth callback' })
   async googleAuthRedirect(@Req() req: any) {
     const result = await this.authService.validateGoogleUser(req.user);
+    const frontendUrl = this.configService.get<string>('frontendUrl');
     return {
-      url: `http://localhost:3001/auth/callback?token=${result.accessToken}`,
+      url: `${frontendUrl}/auth/callback?token=${result.accessToken}`,
     };
   }
 

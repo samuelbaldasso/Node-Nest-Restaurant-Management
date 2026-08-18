@@ -32,7 +32,7 @@ export class AuthService {
         email,
         password: hashedPassword,
         name,
-        role: role || 'CUSTOMER',
+        role: role === 'RESTAURANT_OWNER' ? 'RESTAURANT_OWNER' : 'CUSTOMER',
       },
     });
 

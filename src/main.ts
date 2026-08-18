@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,10 +16,11 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
+  app.useGlobalFilters(new HttpExceptionFilter());
+
   app.enableCors({
-    origin: '*',
+    origin: process.env.CORS_ORIGIN?.split(',') || '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
   });
 
   const config = new DocumentBuilder()

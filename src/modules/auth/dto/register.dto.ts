@@ -1,6 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
+
+const SELF_REGISTRABLE_ROLES = [Role.CUSTOMER, Role.RESTAURANT_OWNER] as const;
 
 export class RegisterDto {
   @ApiProperty({ example: 'John Doe' })
@@ -19,8 +21,8 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  @ApiProperty({ enum: Role, required: false })
+  @ApiProperty({ enum: SELF_REGISTRABLE_ROLES, required: false })
   @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
+  @IsIn(SELF_REGISTRABLE_ROLES)
+  role?: typeof SELF_REGISTRABLE_ROLES[number];
 }
